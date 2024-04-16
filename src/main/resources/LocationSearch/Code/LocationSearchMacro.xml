@@ -436,7 +436,7 @@
           $description
         #end
         (((
-          {{html}}
+          {{html clean=false}}
             &lt;form class='searchLocation form-inline' id='searchLocation' action='${xwiki.getURL('Main.Search')}' role='search'&gt;
               &lt;div class="hidden"&gt;
                 #if ("$searchLocationSpaceName" != "")
@@ -450,11 +450,11 @@
               &lt;span class='input-group-btn'&gt;
                 &lt;input type='text' name='text' placeholder="$!{escapetool.xml($placeholder)}" id='searchLocationInput'#if($inputWidth != '') style="width:${escapetool.xml($inputWidth)}"#end /&gt;
                 &lt;button type='submit' class='btn' title="$services.localization.render('search')" aria-expanded='false' aria-controls='searchLocationInput'#if($buttonWidth != '') style="width:${escapetool.xml($buttonWidth)}"#end&gt;#if($buttonText != '')${escapetool.xml($buttonText)}#else${services.localization.render('search')}#end&lt;/button&gt;
-             &lt;/span&gt;
+              &lt;/span&gt;
             &lt;/form&gt;
           {{/html}}
         )))
-      )))
+      ))) (%%)
 {{/velocity}}</code>
     </property>
     <property>
