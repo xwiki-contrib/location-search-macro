@@ -406,7 +406,6 @@
     #set ($searchLocationSpaceName = $searchLocationDocument.documentReference.lastSpaceReference.name)
     ## Display the search bar only if the referenced location is valid
     #if($searchLocationDocumentReference.size() &gt; 0)
-      #set ($searchPathIndex = $searchLocationDocumentReference.size() - 1)
       #set ($discard = $xwiki.ssx.use('LocationSearch.Code.LocationSearchMacro'))
       #set ($boxLayout = "$!wikimacro.parameters.box")
       #if ("$!boxLayout" == '' || ("$!boxLayout" != 'true' &amp;&amp; "$!boxLayout" != 'false'))
