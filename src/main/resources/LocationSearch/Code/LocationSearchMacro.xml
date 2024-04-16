@@ -399,13 +399,14 @@
     </property>
     <property>
       <code>{{velocity}}
-  #set ($reference = "$!wikimacro.parameters.reference")
-  #if ("$!reference" != '')
-    #set ($searchLocationDocument = $xwiki.getDocument($services.model.resolveDocument($reference)))
-    #set ($searchLocationDocumentReference = $searchLocationDocument.documentReference.spaceReferences)
-    #set ($searchLocationSpaceName = $searchLocationDocument.documentReference.lastSpaceReference.name)
-    ## Display the search bar only if the referenced location is valid
-    #if($searchLocationDocumentReference.size() &gt; 0)
+      #set ($reference = "$!wikimacro.parameters.reference")
+      #if ("$!reference" == '')
+        #set ($searchLocationSpaceName = '')
+      #else
+        #set ($searchLocationDocument = $xwiki.getDocument($services.model.resolveDocument($reference)))
+        #set ($searchLocationDocumentReference = $searchLocationDocument.documentReference.spaceReferences)
+        #set ($searchLocationSpaceName = $searchLocationDocument.documentReference.lastSpaceReference.name)
+      #end
       #set ($discard = $xwiki.ssx.use('LocationSearch.Code.LocationSearchMacro'))
       #set ($boxLayout = "$!wikimacro.parameters.box")
       #if ("$!boxLayout" == '' || ("$!boxLayout" != 'true' &amp;&amp; "$!boxLayout" != 'false'))
@@ -454,8 +455,6 @@
           {{/html}}
         )))
       )))
-    #end
-  #end
 {{/velocity}}</code>
     </property>
     <property>
@@ -570,7 +569,7 @@
       <description>The reference of the location to search into.</description>
     </property>
     <property>
-      <mandatory>1</mandatory>
+      <mandatory>0</mandatory>
     </property>
     <property>
       <name>reference</name>
