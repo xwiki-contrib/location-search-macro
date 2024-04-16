@@ -424,6 +424,9 @@
       #set ($buttonWidth = "$!wikimacro.parameters.buttonWidth")
       #set ($description = "$!wikimacro.parameters.description")
       #set ($buttonText = "$!wikimacro.parameters.buttonText")
+      #set ($tags = "$!wikimacro.parameters.tags")
+      #set ($tags = $tags.split(","))
+
       (% class="searchLocation-quickSearch#if($boxLayout == 'true') box#end#if($floatLayout == 'true') float#end"#if($width != '') style="width:${escapetool.xml($width)}"#end %)(((
         #if ($boxLayout == 'true')
           === #if ($services.icon)$services.icon.render('find')#end Search $searchLocationDocument.displayTitle ===
@@ -435,7 +438,12 @@
           {{html}}
             &lt;form class='searchLocation form-inline' id='searchLocation' action='${xwiki.getURL('Main.Search')}' role='search'&gt;
               &lt;div class="hidden"&gt;
-                &lt;input type="hidden" name="f_space_facet" value="0/${searchLocationSpaceName}."/&gt;
+                #if ("$searchLocationSpaceName" != "")
+                &lt;input type="hidden" name="f_space_facet" value="0/${escapetool.xml($searchLocationSpaceName)}."/&gt;
+                #end
+                #foreach ($tag in $tags)
+                &lt;input type="hidden" name="f_property.XWiki.TagClass.tags_string" value="$escapetool.xml($tag)"/&gt;
+                #end
                 &lt;input type="hidden" name="f_type" value="DOCUMENT"/&gt;
               &lt;/div&gt;
               &lt;span class='input-group-btn'&gt;
@@ -836,6 +844,96 @@
     </property>
     <property>
       <name>buttonText</name>
+    </property>
+    <property>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>4</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>6bb7ff5f-4e21-474d-b3eb-8468dfbc870a</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <restricted>0</restricted>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>type</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Parameter type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>The search should be restricted to documents containing on of these tags, separated with a pipe character (|).</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>tags</name>
     </property>
     <property>
       <type/>
