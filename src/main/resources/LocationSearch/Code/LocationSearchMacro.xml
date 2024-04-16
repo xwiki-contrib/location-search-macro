@@ -169,7 +169,7 @@
 </code>
     </property>
     <property>
-      <contentType></contentType>
+      <contentType/>
     </property>
     <property>
       <name>Location Search Styles</name>
@@ -405,7 +405,7 @@
     #set ($searchLocationDocumentReference = $searchLocationDocument.documentReference.spaceReferences)
     #set ($searchLocationSpaceName = $searchLocationDocument.documentReference.lastSpaceReference.name)
     ## Display the search bar only if the referenced location is valid
-    #if($searchLocationDocumentReference.size() > 0)
+    #if($searchLocationDocumentReference.size() &gt; 0)
       #set ($searchPathIndex = $searchLocationDocumentReference.size() - 1)
       #set ($discard = $xwiki.ssx.use('LocationSearch.Code.LocationSearchMacro'))
       #set ($boxLayout = "$!wikimacro.parameters.box")
@@ -453,10 +453,10 @@
 {{/velocity}}</code>
     </property>
     <property>
-      <contentDescription></contentDescription>
+      <contentDescription/>
     </property>
     <property>
-      <contentJavaType></contentJavaType>
+      <contentJavaType/>
     </property>
     <property>
       <contentType>No content</contentType>
@@ -558,7 +558,7 @@
       </type>
     </class>
     <property>
-      <defaultValue></defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>The reference of the location to search into.</description>
@@ -570,7 +570,7 @@
       <name>reference</name>
     </property>
     <property>
-      <type></type>
+      <type/>
     </property>
   </object>
   <object>
@@ -660,7 +660,7 @@
       <name>box</name>
     </property>
     <property>
-      <type></type>
+      <type/>
     </property>
   </object>
   <object>
@@ -750,7 +750,7 @@
       <name>float</name>
     </property>
     <property>
-      <type></type>
+      <type/>
     </property>
   </object>
   <object>
@@ -828,7 +828,7 @@
       </type>
     </class>
     <property>
-      <defaultValue></defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>Text displayed on the button.</description>
@@ -840,7 +840,7 @@
       <name>buttonText</name>
     </property>
     <property>
-      <type></type>
+      <type/>
     </property>
   </object>
 </xwikidoc>
