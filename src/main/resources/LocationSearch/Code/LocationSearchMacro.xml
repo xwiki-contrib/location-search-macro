@@ -423,7 +423,6 @@
       #set ($width = "$!wikimacro.parameters.width")
       #set ($inputWidth = "$!wikimacro.parameters.inputWidth")
       #set ($buttonWidth = "$!wikimacro.parameters.buttonWidth")
-      #set ($reference = "$!wikimacro.parameters.reference")
       #set ($description = "$!wikimacro.parameters.description")
       #set ($buttonText = "$!wikimacro.parameters.buttonText")
       (% class="searchLocation-quickSearch#if($boxLayout == 'true') box#end#if($floatLayout == 'true') float#end"#if($width != '') style="width:${escapetool.xml($width)}"#end %)(((
