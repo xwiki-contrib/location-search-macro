@@ -450,6 +450,8 @@
                 &lt;input type="hidden" name="f_property.XWiki.TagClass.tags_string" value="$escapetool.xml($tag)"/&gt;
                 #end
                 &lt;input type="hidden" name="f_type" value="DOCUMENT"/&gt;
+                ## The following line is a workaround for XWIKI-22102 and should be removed when the widespread versions of XWiki have a fix for this bug
+                &lt;input type="hidden" name="r" value="1"/&gt;
               &lt;/div&gt;
               &lt;span class='input-group-btn'&gt;
                 &lt;input type='text' name='text' placeholder="$!{escapetool.xml($placeholder)}" id='searchLocationInput'#if($inputWidth != '') style="width:${escapetool.xml($inputWidth)}"#end /&gt;
