@@ -591,7 +591,7 @@
         #end
         (((
           {{html clean=false}}
-            &lt;form class='searchLocation form-inline' id='searchLocation' action='${xwiki.getURL('Main.Search')}' role='search'&gt;
+            &lt;form class='searchLocation form-inline' action='${xwiki.getURL('Main.Search')}' role='search'&gt;
               &lt;div class="hidden"&gt;
                 #if ($reference != "")
                 &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
@@ -609,7 +609,7 @@
                 &lt;input type="hidden" name="r" value="1"/&gt;
               &lt;/div&gt;
               &lt;span class='input-group-btn'&gt;
-                &lt;input type='text' name='text' placeholder="$!{escapetool.xml($placeholder)}" id='searchLocationInput'#if($inputWidth != '') style="width:${escapetool.xml($inputWidth)}"#end /&gt;
+                &lt;input type='text' name='text' placeholder="$!{escapetool.xml($placeholder)}" #if($inputWidth != '') style="width:${escapetool.xml($inputWidth)}"#end /&gt;
                 &lt;button type='submit' class='btn' title="$services.localization.render('search')" aria-expanded='false' aria-controls='searchLocationInput'#if($buttonWidth != '') style="width:${escapetool.xml($buttonWidth)}"#end&gt;#if($buttonText != '')${escapetool.xml($buttonText)}#else${services.localization.render('search')}#end&lt;/button&gt;
               &lt;/span&gt;
             &lt;/form&gt;
