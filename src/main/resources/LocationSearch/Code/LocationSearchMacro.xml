@@ -41,6 +41,148 @@
   <object>
     <name>LocationSearch.Code.LocationSearchMacro</name>
     <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>f005c0e8-b2a1-4a5a-b680-099202f98542</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <defaultValue>long</defaultValue>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <restricted>0</restricted>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>window.addEventListener("DOMContentLoaded", function () {
+
+  const solrSpecialChars = ["\\", "+", "-", "&amp;&amp;", "||", "!", "(", ")", "{", "}", "[",
+      "]", "^", "\"", "~", "*", "?", ":", "/", " "];
+  const escapedSolrSpecialChars = ["\\\\", "\\+", "\\-", "\\&amp;&amp;", "\\||", "\\!", "\\(",
+        "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\\"", "\\~", "\\*", "\\?", "\\:", "\\/", "\\ "]
+
+  function escapeSolr(v) {
+    for (const [toReplace, replacement] of solrSpecialChars.map((k, i) =&gt; [k, escapedSolrSpecialChars[i]])) {
+      v = v.replaceAll(toReplace, replacement);
+    }
+    return v;
+  }
+
+  for (const searchLocation of document.querySelectorAll('.searchLocation-quickSearch')) {
+    searchLocation.querySelector("form").addEventListener("formdata", function (e) {
+      const formData = e.formData;
+      const v = escapeSolr(formData.get("text"));
+      switch (searchLocation.dataset.searchKind) {
+        case "attachmentName":
+          formData.set("text", "filename:" + v);
+          break;
+        case "attachment":
+          formData.set("text", "filename:" + v + " attcontent: " + v);
+          break;
+        case "attachmentContent":
+          formData.set("text", "attcontent:" + v);
+          break;
+        case "object":
+          formData.set("text", "objcontent:" + v);
+          break;
+        case "title":
+          formData.set("text", "title:" + v);
+          break;
+        case "comment":
+          formData.set("text", "property.XWiki.XWikiComments.comment:" + v);
+          break;
+        default:
+          formData.set("text", v);
+      }
+    });
+  }
+});</code>
+    </property>
+    <property>
+      <name>Location Search Suggest Results</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>0</number>
     <className>XWiki.StyleSheetExtension</className>
     <guid>c0adc480-96a5-476c-b3a8-34a214d47623</guid>
     <class>
@@ -431,8 +573,16 @@
       #set ($tags = "$!wikimacro.parameters.tags")
       #set ($tags = $tags.split(","))
       #set ($className = "$!wikimacro.parameters.className")
+      ## $kind = title | content | comment | attachment | attachmentName | attachmentContent | object | all
+      #set ($kind = "$!wikimacro.parameters.kind")
+      #if ($kind == "")
+        #set ($kind = "all")
+      #end
 
-      (% class="searchLocation-quickSearch#if($boxLayout == 'true') box#end#if($floatLayout == 'true') float#end"#if($width != '') style="width:${escapetool.xml($width)}"#end %)(((
+      (% class="searchLocation-quickSearch#if($boxLayout == 'true') box#end#if($floatLayout == 'true') float#end"
+        #if($width != '') style="width:${escapetool.xml($width)}"#end
+         data-search-kind="$escapetool.xml($kind)"
+      %)(((
         #if ($boxLayout == 'true')
           === #if ($services.icon)$services.icon.render('find')#end Search $searchLocationDocument.displayTitle ===
         #end
@@ -1034,6 +1184,96 @@
     </property>
     <property>
       <name>className</name>
+    </property>
+    <property>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>6</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>ce808b98-d890-4a32-8ec2-b986f1d9fb52</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <restricted>0</restricted>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>type</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Parameter type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue>all</defaultValue>
+    </property>
+    <property>
+      <description>The search should be restricted to this kind of elements (possible values: title, content, comment, attachment, attachmentName, attachmentContent, object, all; default: all)</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>kind</name>
     </property>
     <property>
       <type/>
