@@ -172,6 +172,7 @@
           q: input.value,
           nb: "10",
           outputSyntax: "plain",
+          excerpts: (locationSearch.dataset.excerpts === "true") ? 1 : 0,
           spaceFacet: locationSearch.querySelector('input[name="f_space_facet"]')?.value || "",
           className: locationSearch.querySelector('input[name="f_class"]')?.value || "",
           tags: [].map.call(locationSearch.querySelectorAll('input[name="f_property.XWiki.TagClass.tags_string"]'), input =&gt; input.value).join(","),
@@ -397,7 +398,14 @@
             title.appendChild(document.createTextNode(" " + titleText));
             location.appendChild(getSpanIcon(fa("home")));
             location.appendChild(document.createTextNode(" / " + r.location.map(l =&gt; l.title).join(" / ")));
-            a.appendChild(title, location);
+            a.appendChild(title);
+            if (r.excerpt) {
+              const except = document.createElement("p");
+              except.className = "searchLocation-quickSearch-suggestions-excerpt";
+              except.innerHTML = r.excerpt;
+              a.appendChild(except);
+            }
+            a.appendChild(location);
             a.href = r.url;
             a.addEventListener("keydown", suggestionkeyDown);
             li.appendChild(a);
@@ -583,11 +591,14 @@
   background-color: #f5f5f5;
 }
 
-.searchLocation-quickSearch-suggestions-location {
+.searchLocation-quickSearch-suggestions-location, .searchLocation-quickSearch-suggestions-excerpt {
   color: #555555;
   font-size: smaller;
 }
 
+.searchLocation-quickSearch-suggestions-excerpt .search-text-highlight {
+  background-color: #eee;
+  font-weight: bold;
 }</code>
     </property>
     <property>
@@ -850,6 +861,7 @@
       #set ($buttonWidth = "$!wikimacro.parameters.buttonWidth")
       #set ($description = "$!wikimacro.parameters.description")
       #set ($buttonText = "$!wikimacro.parameters.buttonText")
+      #set ($showExcerpts = "$!wikimacro.parameters.showExcerpts")
       #set ($tags = "$!wikimacro.parameters.tags")
       #set ($tags = $tags.split(","))
       #set ($className = "$!wikimacro.parameters.className")
@@ -865,6 +877,7 @@
         #if($width != '') style="width:${escapetool.xml($width)}"#end
          data-search-kind="$escapetool.xml($kind)"
          data-suggest="$suggest"
+         data-excerpts="#if($showExcerpts != "0" &amp;&amp; $showExceprts != "false")true#{else}false#end"
       %)(((
         #if ($boxLayout == 'true')
           === #if ($services.icon)$services.icon.render('find')#end Search $searchLocationDocument.displayTitle ===
@@ -1647,6 +1660,96 @@
     </property>
     <property>
       <name>suggest</name>
+    </property>
+    <property>
+      <type>java.lang.Boolean</type>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>8</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>5b4bf267-e728-45bf-b976-538208a8c694</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <restricted>0</restricted>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>type</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Parameter type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue>1</defaultValue>
+    </property>
+    <property>
+      <description>Show exceprts with highlighted matches in suggested results</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>showExcerpts</name>
     </property>
     <property>
       <type>java.lang.Boolean</type>

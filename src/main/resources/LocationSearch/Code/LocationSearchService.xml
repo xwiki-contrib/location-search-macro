@@ -57,6 +57,9 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
 
 #set ($q = "$!request.q")
 #set ($query = $services.query.createQuery("#escapeSolr($q)", "solr").setWiki($xcontext.database))
+#if ("$!request.excerpts" == "1")
+  #set ($discard = $query.bindValue('hl', true))
+#end
 #set ($fq = ["hidden:false", "type:DOCUMENT"])
 #set ($tags = "$!request.tags")
 #if ($tags != "")
@@ -138,6 +141,10 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
             #set($r.attachmentFilename = $filename)
             #set($r.kind = "attachmentContent")
             #set($r.url = "${xwiki.getURL($resultDoc, 'download')}/$filename")
+            #set ($h = $searchResponse.highlighting[$result.id][$key])
+            #if ($objecttool.isNotNull($h))
+              #set ($r.excerpt = $h)
+            #end
             #break
           #end
           #set ($i = $i + 1)
@@ -154,6 +161,10 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
         #foreach ($propertyKeyValue in $result[$key])
           #if ($stringtool.containsIgnoreCase($propertyKeyValue, $q))
             #set($r.kind = "object")
+            #set ($h = $searchResponse.highlighting[$result.id][$key])
+            #if ($objecttool.isNotNull($h))
+              #set ($r.excerpt = $h)
+            #end
             #break
           #end
         #end
@@ -165,6 +176,18 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
   #end
   #if ($r.kind == "")
     #set($r.kind = "document")
+  #end
+  #if ($stringtool.isEmpty($r.excerpt))
+    #if ($objecttool.isNotNull($searchResponse.highlighting[$result.id]))
+      #foreach ($hKey in $searchResponse.highlighting[$result.id].keySet())
+        #if ($hKey != "filename")
+          #set ($r.excerpt = $searchResponse.highlighting[$result.id][$hKey])
+          #if (!$hKey.startsWith("doccontentraw_"))
+            #break
+          #end
+        #end
+      #end
+    #end
   #end
 
   $jsontool.serialize($r)#if (!$foreach.last),#end
