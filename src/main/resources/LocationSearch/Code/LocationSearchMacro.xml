@@ -430,6 +430,7 @@
       #set ($buttonText = "$!wikimacro.parameters.buttonText")
       #set ($tags = "$!wikimacro.parameters.tags")
       #set ($tags = $tags.split(","))
+      #set ($className = "$!wikimacro.parameters.className")
 
       (% class="searchLocation-quickSearch#if($boxLayout == 'true') box#end#if($floatLayout == 'true') float#end"#if($width != '') style="width:${escapetool.xml($width)}"#end %)(((
         #if ($boxLayout == 'true')
@@ -445,9 +446,13 @@
                 #if ($reference != "")
                 &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
                 #end
+                #if ($className != "")
+                &lt;input type="hidden" name="f_class" value="$escapetool.xml($className)"/&gt;
                 #end
                 #foreach ($tag in $tags)
+                #if ("$tag" != "")
                 &lt;input type="hidden" name="f_property.XWiki.TagClass.tags_string" value="$escapetool.xml($tag)"/&gt;
+                #end
                 #end
                 &lt;input type="hidden" name="f_type" value="DOCUMENT"/&gt;
                 ## The following line is a workaround for XWIKI-22102 and should be removed when the widespread versions of XWiki have a fix for this bug
@@ -939,6 +944,96 @@
     </property>
     <property>
       <name>tags</name>
+    </property>
+    <property>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>5</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>9e4bc443-cac6-47a0-a458-96aa52374bac</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <restricted>0</restricted>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>type</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Parameter type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>The search should be restricted to documents with objects of this type</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>className</name>
     </property>
     <property>
       <type/>
