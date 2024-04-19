@@ -127,6 +127,63 @@
     </property>
     <property>
       <code>window.addEventListener("DOMContentLoaded", function () {
+  const locationSearchMacroDoc = new XWiki.Document(
+    XWiki.Model.resolve("LocationSearch.Code.LocationSearchService", XWiki.EntityType.DOCUMENT)
+  );
+
+  function getKindIcon(kind) {
+    if (kind.startsWith("attachment")) {
+      return fa("paperclip");
+    }
+
+    if (kind === "comment") {
+      return fa("comment-o");
+    }
+
+    if (kind === "object") {
+      return fa("cubes");
+    }
+
+    return fa("file-o");
+  }
+
+  function fa(icon) {
+    return "fa fa-" + icon;
+  }
+
+  function getSpanIcon(faIcon) {
+    const span = document.createElement("span");
+    span.className = faIcon;
+    return span;
+  }
+
+  async function load(typedText, callback, input) {
+    if (typedText.length &lt; 3) {
+      callback([]);
+      return;
+    }
+
+    const locationSearch = input.closest(".searchLocation-quickSearch");
+
+    const response = await fetch(
+      locationSearchMacroDoc.getURL(
+        "get",
+        new URLSearchParams({
+          q: input.value,
+          nb: "10",
+          outputSyntax: "plain",
+          spaceFacet: locationSearch.querySelector('input[name="f_space_facet"]')?.value || "",
+          className: locationSearch.querySelector('input[name="f_class"]')?.value || "",
+          tags: [].map.call(locationSearch.querySelectorAll('input[name="f_property.XWiki.TagClass.tags_string"]'), input =&gt; input.value).join(","),
+          kind: locationSearch.dataset.searchKind
+        }).toString()
+      )
+    );
+
+    if (response.ok) {
+      callback(await response.json());
+    }
+  }
 
   const solrSpecialChars = ["\\", "+", "-", "&amp;&amp;", "||", "!", "(", ")", "{", "}", "[",
       "]", "^", "\"", "~", "*", "?", ":", "/", " "];
@@ -141,6 +198,10 @@
   }
 
   for (const searchLocation of document.querySelectorAll('.searchLocation-quickSearch')) {
+    if (searchLocation.dataset.suggest === "true") {
+      prepareSuggestions(searchLocation, load);
+    }
+
     searchLocation.querySelector("form").addEventListener("formdata", function (e) {
       const formData = e.formData;
       const v = escapeSolr(formData.get("text"));
@@ -167,6 +228,185 @@
           formData.set("text", v);
       }
     });
+  }
+
+  var suggestions = null;
+  var currentInput = null;
+  function fixPosition() {
+    if (suggestions &amp;&amp; currentInput) {
+      const rect = currentInput.getBoundingClientRect();
+      suggestions.style.top = rect.bottom + "px";
+      suggestions.style.left = rect.left + "px";
+      suggestions.style.minWidth = rect.width + "px";
+      suggestions.style.maxHeight = (window.innerHeight - rect.bottom) + "px";
+      suggestions.style.maxWidth = (window.innerWidth - rect.left) + "px";
+    }
+  }
+
+  function hideSuggestions() {
+    if (suggestions) {
+      suggestions.hidden = true;
+    }
+  }
+
+  function suggestionkeyDown(e) {
+    if (!suggestions || (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey)) {
+      return;
+    }
+
+    if (e.keyCode === 27 || e.key === "Escape") {
+      hideSuggestions();
+      currentInput.focus();
+      return;
+    }
+
+    if (e.keyCode === 40 || e.key === 'ArrowDown') {
+      if (e.target.nodeName.toLowerCase() === "a") {
+        const currentLi = e.target.closest("li");
+        const nextLi = currentLi?.nextSibling;
+        if (nextLi) {
+          nextLi.querySelector("a")?.focus();
+          e.preventDefault();
+        }
+      } else {
+        suggestions.querySelector("a")?.focus();
+        e.preventDefault();
+      }
+    } else if (e.keyCode === 38 || e.key === 'ArrowUp' &amp;&amp; e.target.nodeName.toLowerCase() === "a") {
+      const currentLi = e.target.closest("li");
+      const previousLi = currentLi?.previousSibling;
+      if (previousLi) {
+        previousLi.querySelector("a")?.focus();
+        e.preventDefault();
+      } else {
+        currentInput.focus();
+        e.preventDefault();
+      }
+    }
+  }
+
+  function suggestionsFocusIn() {
+    const nodeName = document.activeElement.nodeName.toLowerCase();
+    if (
+      (nodeName !== "a" &amp;&amp; nodeName !== "input") ||
+      !document.activeElement.closest(".searchLocation-quickSearch,.searchLocation-quickSearch-suggestions")
+    ) {
+      hideSuggestions();
+    }
+  }
+
+  function prepareSuggestions(locationSearch, load) {
+    const input = locationSearch.querySelector('input[type="text"]');
+    let debounceTimeout = -1;
+    function debouncedTriggerSuggestions(e) {
+      if (debounceTimeout !== -1) {
+        clearTimeout(debounceTimeout);
+      }
+
+      if (input.value.length &lt; 3 || e.keyCode === 27 || e.key === "Escape") {
+        hideSuggestions();
+        return;
+      }
+
+      debounceTimeout = setTimeout(() =&gt; {
+        debounceTimeout = -1;
+        triggerSuggestions(e)
+      }, 250);
+    }
+
+    let currentSuggestionRequest = "";
+    let requestId = 0;
+    input.autocomplete = "off";
+    input.addEventListener("keyup", debouncedTriggerSuggestions);
+    input.addEventListener("click", triggerSuggestions);
+    input.addEventListener("keydown", suggestionkeyDown);
+
+    function triggerSuggestions () {
+      const v = input.value;
+
+      if (currentSuggestionRequest === v &amp;&amp; currentInput === input &amp;&amp; document.activeElement === input) {
+        if (suggestions &amp;&amp; suggestions.children.length) {
+          suggestions.hidden = false;
+        }
+        return;
+      }
+
+      currentInput = input;
+
+      currentSuggestionRequest = v;
+
+      if (input.value.length &lt; 3) {
+        hideSuggestions();
+        return;
+      }
+
+      const currentRequest = ++requestId;
+
+      load(currentSuggestionRequest, function (results) {
+        if (requestId !== currentRequest) {
+          // another request is in flight
+          return;
+        }
+
+        if (!results.length) {
+          if (suggestions) {
+            suggestions.textContent = "";
+            hideSuggestions();
+          }
+          return;
+        }
+
+        if (!suggestions) {
+          suggestions = document.createElement("ul");
+          suggestions.className = "searchLocation-quickSearch-suggestions";
+          document.body.appendChild(suggestions);
+          fixPosition();
+          window.addEventListener("scroll", fixPosition);
+          window.addEventListener("resize", fixPosition);
+          document.addEventListener("focusin", suggestionsFocusIn);
+          input.addEventListener("focusin", triggerSuggestions);
+          document.addEventListener("click", function (e) {
+            if (e.target !== input) {
+              hideSuggestions();
+            }
+          })
+        }
+
+        suggestions.hidden = false;
+        fixPosition();
+        suggestions.textContent = "";
+        suggestions.append(
+          ...results.map(r =&gt; {
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            const title = document.createElement("p");
+            const location = document.createElement("p");
+            location.className = "searchLocation-quickSearch-suggestions-location";
+            const icon = getSpanIcon(getKindIcon(r.kind));
+            icon.title = r.kind;
+            title.appendChild(icon);
+            titleText = r.docTitle;
+            if (r.kind.startsWith("attachment")) {
+              icon.title = "attachment " + r.kind.substring(10).toLowerCase();
+              titleText = r.attachmentFilename;
+            } else if (r.kind === "comment") {
+              const d = new Date(r.commentDate);
+              titleText = d.toLocaleDateString() + " "  + d.toLocaleTimeString() + ", " + r.commentAuthor;
+            }
+
+            title.appendChild(document.createTextNode(" " + titleText));
+            location.appendChild(getSpanIcon(fa("home")));
+            location.appendChild(document.createTextNode(" / " + r.location.map(l =&gt; l.title).join(" / ")));
+            a.appendChild(title, location);
+            a.href = r.url;
+            a.addEventListener("keydown", suggestionkeyDown);
+            li.appendChild(a);
+            return li;
+          })
+        );
+        suggestions.hidden = false;
+      }, input);
+    }
   }
 });</code>
     </property>
@@ -308,7 +548,47 @@
 .searchLocation-quickSearch .input-group-btn .btn {
   margin-left: 5px
 }
-</code>
+
+.searchLocation-quickSearch-suggestions {
+  margin: 0;
+  margin-top: 2px;
+  padding-top: 1ex;
+  padding-bottom: 1ex;
+  padding-left: 0;
+  padding-right: 0;
+  position: fixed;
+  background: white;
+  list-style: none;
+  z-index: 100;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,.15);
+  box-shadow: 0 6px 12px rgba(0,0,0,.175);
+  overflow: auto;
+}
+
+.searchLocation-quickSearch-suggestions a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  padding: 3px 20px;
+}
+
+.searchLocation-quickSearch-suggestions p {
+  margin: 0;
+  padding: 0;
+}
+
+.searchLocation-quickSearch-suggestions a:hover, .searchLocation-quickSearch-suggestions a:focus {
+  color: #262626;
+  background-color: #f5f5f5;
+}
+
+.searchLocation-quickSearch-suggestions-location {
+  color: #555555;
+  font-size: smaller;
+}
+
+}</code>
     </property>
     <property>
       <contentType/>
@@ -578,10 +858,13 @@
       #if ($kind == "")
         #set ($kind = "all")
       #end
+      #set ($suggest = "$!wikimacro.parameters.suggest")
+      #set ($suggest = $suggest != "0" &amp;&amp; $suggest.toLowerCase() != "false")
 
       (% class="searchLocation-quickSearch#if($boxLayout == 'true') box#end#if($floatLayout == 'true') float#end"
         #if($width != '') style="width:${escapetool.xml($width)}"#end
          data-search-kind="$escapetool.xml($kind)"
+         data-suggest="$suggest"
       %)(((
         #if ($boxLayout == 'true')
           === #if ($services.icon)$services.icon.render('find')#end Search $searchLocationDocument.displayTitle ===
@@ -1277,6 +1560,96 @@
     </property>
     <property>
       <type/>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>7</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>2a29a303-c486-4bbb-8f95-987b9a100907</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <restricted>0</restricted>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>type</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Parameter type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue>1</defaultValue>
+    </property>
+    <property>
+      <description>Suggest results as the search is typed</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>suggest</name>
+    </property>
+    <property>
+      <type>java.lang.Boolean</type>
     </property>
   </object>
 </xwikidoc>
