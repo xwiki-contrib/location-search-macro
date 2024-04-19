@@ -400,14 +400,17 @@
     <property>
       <code>{{velocity}}
       #set ($reference = "$!wikimacro.parameters.reference")
-      #if ("$!reference" == '')
-        #set ($searchLocationSpaceName = '')
-      #else
-        #set ($searchLocationDocument = $xwiki.getDocument($services.model.resolveDocument($reference)))
-        #set ($searchLocationDocumentReference = $searchLocationDocument.documentReference.spaceReferences)
-        #set ($searchLocationSpaceName = $searchLocationDocument.documentReference.lastSpaceReference.name)
+      #if ("$!reference" != '')
+        #set ($searchLocationDocumentReference = $services.model.resolveDocument($reference))
+        #set ($searchLocationDocument = $xwiki.getDocument($searchLocationDocumentReference))
+        #set ($spaceFacetDepth = $searchLocationDocumentReference.getSpaceReferences().size() - 1)
+        #set ($spaceDepth = $searchLocationDocumentReference.getSpaceReferences().size() - 1)
+        #set ($spaceReferenceString = $services.model.serialize($searchLocationDocumentReference.getLastSpaceReference()))
       #end
       #set ($discard = $xwiki.ssx.use('LocationSearch.Code.LocationSearchMacro'))
+      #set ($discard = $xwiki.jsx.use('LocationSearch.Code.LocationSearchMacro'))
+      #set ($discard = $xwiki.linkx.use($services.webjars.url('selectize.js', 'css/selectize.bootstrap3.css'), {'type': 'text/css', 'rel': 'stylesheet'}))
+      #set ($discard = $xwiki.ssfx.use('uicomponents/suggest/xwiki.selectize.css', true))
       #set ($boxLayout = "$!wikimacro.parameters.box")
       #if ("$!boxLayout" == '' || ("$!boxLayout" != 'true' &amp;&amp; "$!boxLayout" != 'false'))
         #set ($boxLayout = "false")
@@ -439,8 +442,9 @@
           {{html clean=false}}
             &lt;form class='searchLocation form-inline' id='searchLocation' action='${xwiki.getURL('Main.Search')}' role='search'&gt;
               &lt;div class="hidden"&gt;
-                #if ("$searchLocationSpaceName" != "")
-                &lt;input type="hidden" name="f_space_facet" value="0/${escapetool.xml($searchLocationSpaceName)}."/&gt;
+                #if ($reference != "")
+                &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
+                #end
                 #end
                 #foreach ($tag in $tags)
                 &lt;input type="hidden" name="f_property.XWiki.TagClass.tags_string" value="$escapetool.xml($tag)"/&gt;
