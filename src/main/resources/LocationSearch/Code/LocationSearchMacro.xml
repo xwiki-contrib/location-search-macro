@@ -41,6 +41,396 @@
   <object>
     <name>LocationSearch.Code.LocationSearchMacro</name>
     <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>f005c0e8-b2a1-4a5a-b680-099202f98542</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <defaultValue>long</defaultValue>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <restricted>0</restricted>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>window.addEventListener("DOMContentLoaded", function () {
+  const locationSearchMacroDoc = new XWiki.Document(
+    XWiki.Model.resolve("LocationSearch.Code.LocationSearchService", XWiki.EntityType.DOCUMENT)
+  );
+
+  function getKindIcon(kind) {
+    if (kind.startsWith("attachment")) {
+      return fa("paperclip");
+    }
+
+    if (kind === "comment") {
+      return fa("comment-o");
+    }
+
+    if (kind === "object") {
+      return fa("cubes");
+    }
+
+    return fa("file-o");
+  }
+
+  function fa(icon) {
+    return "fa fa-" + icon;
+  }
+
+  function getSpanIcon(faIcon) {
+    const span = document.createElement("span");
+    span.className = faIcon;
+    return span;
+  }
+
+  async function load(typedText, callback, input) {
+    if (typedText.length &lt; 3) {
+      callback([]);
+      return;
+    }
+
+    const locationSearch = input.closest(".searchLocation-quickSearch");
+
+    const response = await fetch(
+      locationSearchMacroDoc.getURL(
+        "get",
+        new URLSearchParams({
+          q: input.value,
+          nb: "10",
+          outputSyntax: "plain",
+          excerpts: (locationSearch.dataset.excerpts === "true") ? 1 : 0,
+          spaceFacet: locationSearch.querySelector('input[name="f_space_facet"]')?.value || "",
+          className: locationSearch.querySelector('input[name="f_class"]')?.value || "",
+          tags: [].map.call(locationSearch.querySelectorAll('input[name="f_property.XWiki.TagClass.tags_string"]'), input =&gt; input.value).join(","),
+          kind: locationSearch.dataset.searchKind
+        }).toString()
+      )
+    );
+
+    if (response.ok) {
+      callback(await response.json());
+    }
+  }
+
+  const solrSpecialChars = ["\\", "+", "-", "&amp;&amp;", "||", "!", "(", ")", "{", "}", "[",
+      "]", "^", "\"", "~", "*", "?", ":", "/", " "];
+  const escapedSolrSpecialChars = ["\\\\", "\\+", "\\-", "\\&amp;&amp;", "\\||", "\\!", "\\(",
+        "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\\"", "\\~", "\\*", "\\?", "\\:", "\\/", "\\ "]
+
+  function escapeSolr(v) {
+    for (const [toReplace, replacement] of solrSpecialChars.map((k, i) =&gt; [k, escapedSolrSpecialChars[i]])) {
+      v = v.replaceAll(toReplace, replacement);
+    }
+    return v;
+  }
+
+  for (const searchLocation of document.querySelectorAll('.searchLocation-quickSearch')) {
+    if (searchLocation.dataset.suggest === "true") {
+      prepareSuggestions(searchLocation, load);
+    }
+
+    searchLocation.querySelector("form").addEventListener("formdata", function (e) {
+      const formData = e.formData;
+      const v = escapeSolr(formData.get("text"));
+      switch (searchLocation.dataset.searchKind) {
+        case "attachmentName":
+          formData.set("text", "filename:" + v);
+          break;
+        case "attachment":
+          formData.set("text", "filename:" + v + " attcontent: " + v);
+          break;
+        case "attachmentContent":
+          formData.set("text", "attcontent:" + v);
+          break;
+        case "object":
+          formData.set("text", "objcontent:" + v);
+          break;
+        case "title":
+          formData.set("text", "title:" + v);
+          break;
+        case "comment":
+          formData.set("text", "property.XWiki.XWikiComments.comment:" + v);
+          break;
+        default:
+          formData.set("text", v);
+      }
+    });
+  }
+
+  var suggestions = null;
+  var currentInput = null;
+  function fixPosition() {
+    if (suggestions &amp;&amp; currentInput) {
+      const rect = currentInput.getBoundingClientRect();
+      suggestions.style.top = rect.bottom + "px";
+      suggestions.style.left = rect.left + "px";
+      suggestions.style.minWidth = rect.width + "px";
+      suggestions.style.maxHeight = (window.innerHeight - rect.bottom) + "px";
+      suggestions.style.maxWidth = (window.innerWidth - rect.left) + "px";
+    }
+  }
+
+  function hideSuggestions() {
+    if (suggestions) {
+      suggestions.hidden = true;
+    }
+  }
+
+  function suggestionkeyDown(e) {
+    if (!suggestions || (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey)) {
+      return;
+    }
+
+    if (e.keyCode === 27 || e.key === "Escape") {
+      hideSuggestions();
+      currentInput.focus();
+      return;
+    }
+
+    if (e.keyCode === 40 || e.key === 'ArrowDown') {
+      if (e.target.nodeName.toLowerCase() === "a") {
+        const currentLi = e.target.closest("li");
+        const nextLi = currentLi?.nextSibling;
+        if (nextLi) {
+          nextLi.querySelector("a")?.focus();
+          e.preventDefault();
+        }
+      } else {
+        suggestions.querySelector("a")?.focus();
+        e.preventDefault();
+      }
+    } else if (e.keyCode === 38 || e.key === 'ArrowUp' &amp;&amp; e.target.nodeName.toLowerCase() === "a") {
+      const currentLi = e.target.closest("li");
+      const previousLi = currentLi?.previousSibling;
+      if (previousLi) {
+        previousLi.querySelector("a")?.focus();
+        e.preventDefault();
+      } else {
+        currentInput.focus();
+        e.preventDefault();
+      }
+    }
+  }
+
+  function suggestionsFocusIn() {
+    const nodeName = document.activeElement.nodeName.toLowerCase();
+    if (
+      (nodeName !== "a" &amp;&amp; nodeName !== "input") ||
+      !document.activeElement.closest(".searchLocation-quickSearch,.searchLocation-quickSearch-suggestions")
+    ) {
+      hideSuggestions();
+    }
+  }
+
+  function prepareSuggestions(locationSearch, load) {
+    const input = locationSearch.querySelector('input[type="text"]');
+    let debounceTimeout = -1;
+    function debouncedTriggerSuggestions(e) {
+      if (debounceTimeout !== -1) {
+        clearTimeout(debounceTimeout);
+      }
+
+      if (input.value.length &lt; 3 || e.keyCode === 27 || e.key === "Escape") {
+        hideSuggestions();
+        return;
+      }
+
+      debounceTimeout = setTimeout(() =&gt; {
+        debounceTimeout = -1;
+        triggerSuggestions(e)
+      }, 250);
+    }
+
+    let currentSuggestionRequest = "";
+    let requestId = 0;
+    input.autocomplete = "off";
+    input.addEventListener("keyup", debouncedTriggerSuggestions);
+    input.addEventListener("click", triggerSuggestions);
+    input.addEventListener("keydown", suggestionkeyDown);
+
+    function triggerSuggestions () {
+      const v = input.value;
+
+      if (currentSuggestionRequest === v &amp;&amp; currentInput === input &amp;&amp; document.activeElement === input) {
+        if (suggestions &amp;&amp; suggestions.children.length) {
+          suggestions.hidden = false;
+        }
+        return;
+      }
+
+      currentInput = input;
+
+      currentSuggestionRequest = v;
+
+      if (input.value.length &lt; 3) {
+        hideSuggestions();
+        return;
+      }
+
+      const currentRequest = ++requestId;
+
+      load(currentSuggestionRequest, function (results) {
+        if (requestId !== currentRequest) {
+          // another request is in flight
+          return;
+        }
+
+        if (!results.length) {
+          if (suggestions) {
+            suggestions.textContent = "";
+            hideSuggestions();
+          }
+          return;
+        }
+
+        if (!suggestions) {
+          suggestions = document.createElement("ul");
+          suggestions.className = "searchLocation-quickSearch-suggestions";
+          document.body.appendChild(suggestions);
+          fixPosition();
+          window.addEventListener("scroll", fixPosition);
+          window.addEventListener("resize", fixPosition);
+          document.addEventListener("focusin", suggestionsFocusIn);
+          input.addEventListener("focusin", triggerSuggestions);
+          document.addEventListener("click", function (e) {
+            if (e.target !== input) {
+              hideSuggestions();
+            }
+          })
+        }
+
+        suggestions.hidden = false;
+        fixPosition();
+        suggestions.textContent = "";
+        suggestions.append(
+          ...results.map(r =&gt; {
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            const title = document.createElement("p");
+            const location = document.createElement("p");
+            location.className = "searchLocation-quickSearch-suggestions-location";
+            const icon = getSpanIcon(getKindIcon(r.kind));
+            icon.title = r.kind;
+            title.appendChild(icon);
+            titleText = r.docTitle;
+            if (r.kind.startsWith("attachment")) {
+              icon.title = "attachment " + r.kind.substring(10).toLowerCase();
+              titleText = r.attachmentFilename;
+            } else if (r.kind === "comment") {
+              const d = new Date(r.commentDate);
+              titleText = d.toLocaleDateString() + " "  + d.toLocaleTimeString() + ", " + r.commentAuthor;
+            }
+
+            title.appendChild(document.createTextNode(" " + titleText));
+            location.appendChild(getSpanIcon(fa("home")));
+            location.appendChild(document.createTextNode(" / " + r.location.map(l =&gt; l.title).join(" / ")));
+            a.appendChild(title);
+            if (r.excerpt) {
+              const except = document.createElement("p");
+              except.className = "searchLocation-quickSearch-suggestions-excerpt";
+              except.innerHTML = r.excerpt;
+              a.appendChild(except);
+            }
+            a.appendChild(location);
+            a.href = r.url;
+            a.addEventListener("keydown", suggestionkeyDown);
+            li.appendChild(a);
+            return li;
+          })
+        );
+        suggestions.hidden = false;
+      }, input);
+    }
+  }
+});</code>
+    </property>
+    <property>
+      <name>Location Search Suggest Results</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>0</number>
     <className>XWiki.StyleSheetExtension</className>
     <guid>c0adc480-96a5-476c-b3a8-34a214d47623</guid>
     <class>
@@ -166,10 +556,53 @@
 .searchLocation-quickSearch .input-group-btn .btn {
   margin-left: 5px
 }
-</code>
+
+.searchLocation-quickSearch-suggestions {
+  margin: 0;
+  margin-top: 2px;
+  padding-top: 1ex;
+  padding-bottom: 1ex;
+  padding-left: 0;
+  padding-right: 0;
+  position: fixed;
+  background: white;
+  list-style: none;
+  z-index: 100;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,.15);
+  box-shadow: 0 6px 12px rgba(0,0,0,.175);
+  overflow: auto;
+}
+
+.searchLocation-quickSearch-suggestions a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  padding: 3px 20px;
+}
+
+.searchLocation-quickSearch-suggestions p {
+  margin: 0;
+  padding: 0;
+}
+
+.searchLocation-quickSearch-suggestions a:hover, .searchLocation-quickSearch-suggestions a:focus {
+  color: #262626;
+  background-color: #f5f5f5;
+}
+
+.searchLocation-quickSearch-suggestions-location, .searchLocation-quickSearch-suggestions-excerpt {
+  color: #555555;
+  font-size: smaller;
+}
+
+.searchLocation-quickSearch-suggestions-excerpt .search-text-highlight {
+  background-color: #eee;
+  font-weight: bold;
+}</code>
     </property>
     <property>
-      <contentType></contentType>
+      <contentType/>
     </property>
     <property>
       <name>Location Search Styles</name>
@@ -399,15 +832,18 @@
     </property>
     <property>
       <code>{{velocity}}
-  #set ($reference = "$!wikimacro.parameters.reference")
-  #if ("$!reference" != '')
-    #set ($searchLocationDocument = $xwiki.getDocument($services.model.resolveDocument($reference)))
-    #set ($searchLocationDocumentReference = $searchLocationDocument.documentReference.spaceReferences)
-    #set ($searchLocationSpaceName = $searchLocationDocument.documentReference.lastSpaceReference.name)
-    ## Display the search bar only if the referenced location is valid
-    #if($searchLocationDocumentReference.size() > 0)
-      #set ($searchPathIndex = $searchLocationDocumentReference.size() - 1)
+      #set ($reference = "$!wikimacro.parameters.reference")
+      #if ("$!reference" != '')
+        #set ($searchLocationDocumentReference = $services.model.resolveDocument($reference))
+        #set ($searchLocationDocument = $xwiki.getDocument($searchLocationDocumentReference))
+        #set ($spaceFacetDepth = $searchLocationDocumentReference.getSpaceReferences().size() - 1)
+        #set ($spaceDepth = $searchLocationDocumentReference.getSpaceReferences().size() - 1)
+        #set ($spaceReferenceString = $services.model.serialize($searchLocationDocumentReference.getLastSpaceReference()))
+      #end
       #set ($discard = $xwiki.ssx.use('LocationSearch.Code.LocationSearchMacro'))
+      #set ($discard = $xwiki.jsx.use('LocationSearch.Code.LocationSearchMacro'))
+      #set ($discard = $xwiki.linkx.use($services.webjars.url('selectize.js', 'css/selectize.bootstrap3.css'), {'type': 'text/css', 'rel': 'stylesheet'}))
+      #set ($discard = $xwiki.ssfx.use('uicomponents/suggest/xwiki.selectize.css', true))
       #set ($boxLayout = "$!wikimacro.parameters.box")
       #if ("$!boxLayout" == '' || ("$!boxLayout" != 'true' &amp;&amp; "$!boxLayout" != 'false'))
         #set ($boxLayout = "false")
@@ -423,10 +859,26 @@
       #set ($width = "$!wikimacro.parameters.width")
       #set ($inputWidth = "$!wikimacro.parameters.inputWidth")
       #set ($buttonWidth = "$!wikimacro.parameters.buttonWidth")
-      #set ($reference = "$!wikimacro.parameters.reference")
       #set ($description = "$!wikimacro.parameters.description")
       #set ($buttonText = "$!wikimacro.parameters.buttonText")
-      (% class="searchLocation-quickSearch#if($boxLayout == 'true') box#end#if($floatLayout == 'true') float#end"#if($width != '') style="width:${escapetool.xml($width)}"#end %)(((
+      #set ($showExcerpts = "$!wikimacro.parameters.showExcerpts")
+      #set ($tags = "$!wikimacro.parameters.tags")
+      #set ($tags = $tags.split(","))
+      #set ($className = "$!wikimacro.parameters.className")
+      ## $kind = title | content | comment | attachment | attachmentName | attachmentContent | object | all
+      #set ($kind = "$!wikimacro.parameters.kind")
+      #if ($kind == "")
+        #set ($kind = "all")
+      #end
+      #set ($suggest = "$!wikimacro.parameters.suggest")
+      #set ($suggest = $suggest != "0" &amp;&amp; $suggest.toLowerCase() != "false")
+
+      (% class="searchLocation-quickSearch#if($boxLayout == 'true') box#end#if($floatLayout == 'true') float#end"
+        #if($width != '') style="width:${escapetool.xml($width)}"#end
+         data-search-kind="$escapetool.xml($kind)"
+         data-suggest="$suggest"
+         data-excerpts="#if($showExcerpts != "0" &amp;&amp; $showExceprts != "false")true#{else}false#end"
+      %)(((
         #if ($boxLayout == 'true')
           === #if ($services.icon)$services.icon.render('find')#end Search $searchLocationDocument.displayTitle ===
         #end
@@ -434,29 +886,39 @@
           $description
         #end
         (((
-          {{html}}
-            &lt;form class='searchLocation form-inline' id='searchLocation' action='${xwiki.getURL('Main.Search')}' role='search'&gt;
+          {{html clean=false}}
+            &lt;form class='searchLocation form-inline' action='${xwiki.getURL('Main.Search')}' role='search'&gt;
               &lt;div class="hidden"&gt;
-                &lt;input type="hidden" name="f_space_facet" value="0/${searchLocationSpaceName}."/&gt;
+                #if ($reference != "")
+                &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
+                #end
+                #if ($className != "")
+                &lt;input type="hidden" name="f_class" value="$escapetool.xml($className)"/&gt;
+                #end
+                #foreach ($tag in $tags)
+                #if ("$tag" != "")
+                &lt;input type="hidden" name="f_property.XWiki.TagClass.tags_string" value="$escapetool.xml($tag)"/&gt;
+                #end
+                #end
                 &lt;input type="hidden" name="f_type" value="DOCUMENT"/&gt;
+                ## The following line is a workaround for XWIKI-22102 and should be removed when the widespread versions of XWiki have a fix for this bug
+                &lt;input type="hidden" name="r" value="1"/&gt;
               &lt;/div&gt;
               &lt;span class='input-group-btn'&gt;
-                &lt;input type='text' name='text' placeholder="$!{escapetool.xml($placeholder)}" id='searchLocationInput'#if($inputWidth != '') style="width:${escapetool.xml($inputWidth)}"#end /&gt;
+                &lt;input type='text' name='text' placeholder="$!{escapetool.xml($placeholder)}" #if($inputWidth != '') style="width:${escapetool.xml($inputWidth)}"#end /&gt;
                 &lt;button type='submit' class='btn' title="$services.localization.render('search')" aria-expanded='false' aria-controls='searchLocationInput'#if($buttonWidth != '') style="width:${escapetool.xml($buttonWidth)}"#end&gt;#if($buttonText != '')${escapetool.xml($buttonText)}#else${services.localization.render('search')}#end&lt;/button&gt;
-             &lt;/span&gt;
+              &lt;/span&gt;
             &lt;/form&gt;
           {{/html}}
         )))
-      )))
-    #end
-  #end
+      ))) (%%)
 {{/velocity}}</code>
     </property>
     <property>
-      <contentDescription></contentDescription>
+      <contentDescription/>
     </property>
     <property>
-      <contentJavaType></contentJavaType>
+      <contentJavaType/>
     </property>
     <property>
       <contentType>No content</contentType>
@@ -558,19 +1020,19 @@
       </type>
     </class>
     <property>
-      <defaultValue></defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>The reference of the location to search into.</description>
     </property>
     <property>
-      <mandatory>1</mandatory>
+      <mandatory>0</mandatory>
     </property>
     <property>
       <name>reference</name>
     </property>
     <property>
-      <type></type>
+      <type/>
     </property>
   </object>
   <object>
@@ -660,7 +1122,7 @@
       <name>box</name>
     </property>
     <property>
-      <type></type>
+      <type/>
     </property>
   </object>
   <object>
@@ -750,7 +1212,7 @@
       <name>float</name>
     </property>
     <property>
-      <type></type>
+      <type/>
     </property>
   </object>
   <object>
@@ -828,7 +1290,7 @@
       </type>
     </class>
     <property>
-      <defaultValue></defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>Text displayed on the button.</description>
@@ -840,7 +1302,457 @@
       <name>buttonText</name>
     </property>
     <property>
-      <type></type>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>4</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>6bb7ff5f-4e21-474d-b3eb-8468dfbc870a</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <restricted>0</restricted>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>type</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Parameter type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>The search should be restricted to documents containing on of these tags, separated with a pipe character (|).</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>tags</name>
+    </property>
+    <property>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>5</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>9e4bc443-cac6-47a0-a458-96aa52374bac</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <restricted>0</restricted>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>type</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Parameter type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>The search should be restricted to documents with objects of this type</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>className</name>
+    </property>
+    <property>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>6</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>ce808b98-d890-4a32-8ec2-b986f1d9fb52</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <restricted>0</restricted>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>type</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Parameter type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue>all</defaultValue>
+    </property>
+    <property>
+      <description>The search should be restricted to this kind of elements (possible values: title, content, comment, attachment, attachmentName, attachmentContent, object, all; default: all)</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>kind</name>
+    </property>
+    <property>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>7</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>2a29a303-c486-4bbb-8f95-987b9a100907</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <restricted>0</restricted>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>type</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Parameter type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue>1</defaultValue>
+    </property>
+    <property>
+      <description>Suggest results as the search is typed</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>suggest</name>
+    </property>
+    <property>
+      <type>java.lang.Boolean</type>
+    </property>
+  </object>
+  <object>
+    <name>LocationSearch.Code.LocationSearchMacro</name>
+    <number>8</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>5b4bf267-e728-45bf-b976-538208a8c694</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <restricted>0</restricted>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>type</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Parameter type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue>1</defaultValue>
+    </property>
+    <property>
+      <description>Show exceprts with highlighted matches in suggested results</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>showExcerpts</name>
+    </property>
+    <property>
+      <type>java.lang.Boolean</type>
     </property>
   </object>
 </xwikidoc>
