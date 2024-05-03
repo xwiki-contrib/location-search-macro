@@ -61,7 +61,31 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
 #if ($wiki == "")
   #set ($wiki = $xcontext.database)
 #end
-#set ($query = $services.query.createQuery("#escapeSolr($q)", "solr").setWiki($wiki))
+#set ($kind = "$!request.kind")
+#if ($kind != "")
+  #set ($discard = $query.bindValue("qf", [$fields[$request.kind]]))
+#end
+#set ($attachmentNameEnabled = $kind == "all" || $kind == "attachmentName" || $kind == "attachment")
+#set ($titleStartsWithSearch = '')
+#set ($titleSearch = '')
+#set ($normalSearch = '')
+#foreach ($word in $q.split("[\s]+"))
+  #if ($foreach.first)
+    #set ($AND = "")
+  #else
+    #set ($AND = " AND ")
+  #end
+  #set ($escapedWord = "#escapeSolr($word)")
+  #set ($quotedEscapedWord = "$escapetool.Q$escapedWord$escapetool.Q")
+  #set ($titleSearch = "$titleSearch$AND*$escapedWord*")
+  #set ($titleStartsWithSearch = "$titleStartsWithSearch$AND$escapedWord*")
+  #set ($normalSearch = "$normalSearch$AND$quotedEscapedWord")
+#end
+#set ($queryString = "title:($titleStartsWithSearch)^3 OR title:($titleSearch)^2 OR ($normalSearch)^1")
+#if ($attachmentNameEnabled)
+  #set ($queryString = "$queryString filename:($titleStartsWithSearch)^3 OR filename:($titleSearch)^2")
+#end
+#set ($query = $services.query.createQuery($queryString, "solr").setWiki($wiki))
 #if ("$!request.excerpts" == "1")
   #set ($discard = $query.bindValue('hl', true))
 #end
@@ -83,10 +107,6 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
   #set ($discard = $fq.add("class:#escapeSolr($className)"))
 #end
 #set ($discard = $query.bindValue("fq", $fq))
-#set ($kind = "$!request.kind")
-#if ($kind != "")
-  #set ($discard = $query.bindValue("qf", [$fields[$request.kind]]))
-#end
 #set ($discard = $query.setLimit($request.nb))
 #set ($searchResponse = $query.execute()[0])
 #set ($discard = $response.writer.write('['))
@@ -128,7 +148,7 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
       #end
     #end
   #end
-  #if ($r.kind == "" &amp;&amp; ($kind == "all" || $kind == "attachmentName" || $kind == "attachment"))
+  #if ($r.kind == "" &amp;&amp; $attachmentNameEnabled)
     #foreach ($filename in $result.filename)
       #if ($stringtool.containsIgnoreCase($filename, $q))
         #set($r.attachmentFilename = $filename)

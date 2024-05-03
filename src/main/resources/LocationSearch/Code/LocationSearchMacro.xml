@@ -396,15 +396,26 @@
               titleText = d.toLocaleDateString() + " "  + d.toLocaleTimeString() + ", " + r.commentAuthor;
             }
 
-            title.appendChild(document.createTextNode(" " + titleText));
+            title.appendChild(document.createTextNode(" "));
             location.appendChild(getSpanIcon(fa("home")));
             location.appendChild(document.createTextNode(" / " + r.location.map(l =&gt; l.title).join(" / ")));
             a.appendChild(title);
             if (r.excerpt) {
-              const except = document.createElement("p");
-              except.className = "searchLocation-quickSearch-suggestions-excerpt";
-              except.innerHTML = r.excerpt;
-              a.appendChild(except);
+              const excerpt = document.createElement("template");
+              excerpt.innerHTML = r.excerpt;
+              let excerptNode;
+              if (excerpt.content.textContent.trim() === titleText.trim()) {
+                excerptNode = document.createElement("span");
+                title.appendChild(excerptNode);
+              } else {
+                excerptNode = document.createElement("p");
+                a.appendChild(excerptNode);
+                title.appendChild(document.createTextNode(titleText));
+              }
+              excerptNode.appendChild(excerpt.content);
+              excerptNode.className = "searchLocation-quickSearch-suggestions-excerpt";
+            } else {
+              title.appendChild(document.createTextNode(titleText));
             }
             a.appendChild(location);
             a.href = r.url;
