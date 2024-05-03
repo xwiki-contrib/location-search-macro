@@ -56,7 +56,11 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
 })
 
 #set ($q = "$!request.q")
-#set ($query = $services.query.createQuery("#escapeSolr($q)", "solr").setWiki($xcontext.database))
+#set ($wiki = "$!request.wiki")
+#if ($wiki == "")
+  #set ($wiki = $xcontext.database)
+#end
+#set ($query = $services.query.createQuery("#escapeSolr($q)", "solr").setWiki($wiki))
 #if ("$!request.excerpts" == "1")
   #set ($discard = $query.bindValue('hl', true))
 #end
@@ -86,15 +90,16 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
 #set ($searchResponse = $query.execute()[0])
 [#foreach ($result in $searchResponse.results)
   #set ($location = [])
-  #foreach ($part in $services.model.resolveDocument($result.fullname).getSpaceReferences())
+  #set ($docRef = $services.model.resolveDocument("$wiki:$result.fullname"))
+  #foreach ($part in $docRef.getSpaceReferences())
     #set($discard = $location.add({
       "id": $part.name,
-      "title": $xwiki.getDocument("${services.model.serialize($part)}.WebHome").displayTitle
+      "title": $xwiki.getDocument("$wiki:${services.model.serialize($part)}.WebHome").displayTitle
     }))
   #end
-  #set ($resultDoc = $xwiki.getDocument($result.fullname))
+  #set ($resultDoc = $xwiki.getDocument($docRef))
   #set ($r = {
-    "docFullName": $result.fullname,
+    "docFullName": $services.model.serialize($docRef, "default"),
     "docTitle":  $resultDoc.displayTitle,
     "type": $result.type,
     "kind": "",
@@ -110,7 +115,7 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
             #set($r.commentAuthor = $result['property.XWiki.XWikiComments.author_string'][$i])
             #set($r.commentDate = $result['property.XWiki.XWikiComments.date_date'][$i])
             #set($r.kind = "comment")
-            #set($r.url = $xwiki.getURL($result.fullname, "view", "", "Comments"))
+            #set($r.url = $xwiki.getURL($docRef, "view", "", "Comments"))
             #break
           #end
           #set ($i = $i + 1)
