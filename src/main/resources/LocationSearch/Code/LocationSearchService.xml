@@ -37,7 +37,8 @@
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
-  <content>{{velocity}}
+  <content>{{velocity output="false"}}
+#set ($discard = $response.setContentType("application/json"))
 #set ($solrSpecialChars = ['+', '-', '&amp;&amp;', '||', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '/', '\', ' '])
 #set ($escapedSolrSpecialChars = ['\+', '\-', '&amp;&amp;', '\||', '\!', '\(', '\)', '\{', '\}', '\[', '\]', '\^', '\"', '\~', '\*', '\?', '\:', '\/', '\\', '\ '])
 #macro(escapeSolr $v)
@@ -88,7 +89,8 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
 #end
 #set ($discard = $query.setLimit($request.nb))
 #set ($searchResponse = $query.execute()[0])
-[#foreach ($result in $searchResponse.results)
+#set ($discard = $response.writer.write('['))
+#foreach ($result in $searchResponse.results)
   #set ($location = [])
   #set ($docRef = $services.model.resolveDocument("$wiki:$result.fullname"))
   #foreach ($part in $docRef.getSpaceReferences())
@@ -194,10 +196,12 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
       #end
     #end
   #end
-
-  $jsontool.serialize($r)#if (!$foreach.last),#end
+  #set ($discard = $response.writer.write($jsontool.serialize($r)))
+  #if (!$foreach.last)
+    $response.writer.write(',')
+  #end
 #end
-
-]
+#set ($discard = $response.writer.write(']'))
+#set ($discard = $xcontext.setFinished(true))
 {{/velocity}}</content>
 </xwikidoc>
