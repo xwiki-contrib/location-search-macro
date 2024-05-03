@@ -1039,7 +1039,7 @@
       <defaultValue/>
     </property>
     <property>
-      <description>The reference of the location to search into.</description>
+      <description>The reference of the location to search into. Use "WebHome" to search in children of the current document.</description>
     </property>
     <property>
       <mandatory>0</mandatory>
