@@ -1036,10 +1036,10 @@
       </type>
     </class>
     <property>
-      <defaultValue/>
+      <defaultValue>WebHome</defaultValue>
     </property>
     <property>
-      <description>The reference of the location to search into. Use "WebHome" to search in children of the current document.</description>
+      <description>The reference of the location to search into. Use "WebHome" to search in children of the current document, "" to search everywhere.</description>
     </property>
     <property>
       <mandatory>0</mandatory>
