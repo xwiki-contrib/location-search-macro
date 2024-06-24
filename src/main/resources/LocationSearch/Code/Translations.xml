@@ -1,0 +1,98 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.5" reference="LocationSearch.Code.Translations" locale="">
+  <web>LocationSearch.Code</web>
+  <name>Translations</name>
+  <language/>
+  <defaultLanguage>en</defaultLanguage>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <originalMetadataAuthor>xwiki:XWiki.Admin</originalMetadataAuthor>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>plain/1.0</syntaxId>
+  <hidden>true</hidden>
+  <content>rendering.macro.locationSearch.name=Location search
+rendering.macro.locationSearch.description=Search in the given location.
+rendering.macro.locationSearch.parameter.reference.name=Reference
+rendering.macro.locationSearch.parameter.reference.description=The reference of the location to search into. Use "WebHome" to search in children of the current document, "" to search everywhere.
+rendering.macro.locationSearch.parameter.box.name=Box
+rendering.macro.locationSearch.parameter.box.description=Display the search bar in a box.
+rendering.macro.locationSearch.parameter.float.name=Flottant
+rendering.macro.locationSearch.parameter.float.description=Make the search block float.
+rendering.macro.locationSearch.parameter.buttonText.name=Texte du bouton
+rendering.macro.locationSearch.parameter.buttonText.description=Texte affiché sur le bouton.
+rendering.macro.locationSearch.parameter.tags.name=Tags
+rendering.macro.locationSearch.parameter.tags.description=The search should be restricted to documents containing one of these tags, separated with a pipe character (|).
+rendering.macro.locationSearch.parameter.className.name=Nom de classe
+rendering.macro.locationSearch.parameter.className.description=La recherche devrait être restrainte aux documents contenant un objet de ce type.
+rendering.macro.locationSearch.parameter.kind.name=Kind
+rendering.macro.locationSearch.parameter.kind.description=The search should be restricted to this kind of elements (possible values: title, content, comment, attachment, attachmentName, attachmentContent, object, all; default: all).
+rendering.macro.locationSearch.parameter.suggest.name=Suggest
+rendering.macro.locationSearch.parameter.suggest.description=Suggest results as the search is typed.
+rendering.macro.locationSearch.parameter.showExcerpts.name=Show Excerpts
+rendering.macro.locationSearch.parameter.showExcerpts.description=Show exceprts with highlighted matches in suggested results.
+</content>
+  <object>
+    <name>LocationSearch.Code.Translations</name>
+    <number>0</number>
+    <className>XWiki.TranslationDocumentClass</className>
+    <guid>210cc7c8-2c1d-4141-8150-16269a305a86</guid>
+    <class>
+      <name>XWiki.TranslationDocumentClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>1</number>
+        <prettyName>Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>GLOBAL|WIKI|USER|ON_DEMAND</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <property>
+      <scope>WIKI</scope>
+    </property>
+  </object>
+</xwikidoc>
