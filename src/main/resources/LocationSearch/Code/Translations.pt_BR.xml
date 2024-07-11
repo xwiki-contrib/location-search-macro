@@ -1,1 +1,61 @@
+<?xml version="1.1" encoding="UTF-8"?>
 
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.5" reference="LocationSearch.Code.Translations" locale="pt_BR">
+  <web>LocationSearch.Code</web>
+  <name>Translations</name>
+  <language>pt_BR</language>
+  <defaultLanguage>en</defaultLanguage>
+  <translation>1</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <originalMetadataAuthor>xwiki:XWiki.Admin</originalMetadataAuthor>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>plain/1.0</syntaxId>
+  <hidden>true</hidden>
+  <content>rendering.macro.locationSearch.name=Pesquisa de localização
+rendering.macro.locationSearch.description=Pesquise no local indicado.
+rendering.macro.locationSearch.parameter.reference.name=Referência
+rendering.macro.locationSearch.parameter.reference.description=A referência do local a ser pesquisado. Use "WebHome" para pesquisar nos filhos do documento atual, "" para pesquisar em qualquer lugar.
+rendering.macro.locationSearch.parameter.box.name=Caixa
+rendering.macro.locationSearch.parameter.box.description=Exiba a barra de pesquisa em uma caixa.
+rendering.macro.locationSearch.parameter.float.name=Flutuador
+rendering.macro.locationSearch.parameter.float.description=Faça o bloco de pesquisa flutuar.
+rendering.macro.locationSearch.parameter.buttonText.name=Botão de texto
+rendering.macro.locationSearch.parameter.buttonText.description=Texto exibido no botão.
+rendering.macro.locationSearch.parameter.tags.name=Tag
+rendering.macro.locationSearch.parameter.tags.description=A pesquisa deve ser restrita a documentos que contenham uma dessas tags, separadas por uma barra vertical (|).
+rendering.macro.locationSearch.parameter.className.name=Nome da classe
+rendering.macro.locationSearch.parameter.className.description=A busca deve ser restrita a documentos que contenham um objeto desta classe.
+rendering.macro.locationSearch.parameter.kind.name=Tipo
+rendering.macro.locationSearch.parameter.kind.description=A pesquisa deve ser restrita a este tipo de elementos (valores possíveis: título, conteúdo, comentário, anexo, attachmentName, attachmentContent, objeto, todos; padrão: todos).
+rendering.macro.locationSearch.parameter.suggest.name=Sugerir
+rendering.macro.locationSearch.parameter.suggest.description=Sugira resultados à medida que a pesquisa é digitada.
+rendering.macro.locationSearch.parameter.showExcerpts.name=Mostrar trechos
+rendering.macro.locationSearch.parameter.showExcerpts.description=Mostre trechos com correspondências destacadas nos resultados sugeridos.
+</content>
+  </xwikidoc>
