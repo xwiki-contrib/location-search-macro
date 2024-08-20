@@ -563,11 +563,27 @@
   padding-bottom:.5em
 }
 .searchLocation-quickSearch p {
-  margin:20px 0 15px 0
+  margin:0;
+  padding:0;
 }
 .searchLocation-quickSearch .input-group-btn .btn {
   margin-left: 5px
 }
+
+.searchLocation-quickSearch {
+  margin: auto;
+}
+
+form.searchLocation .input-group-btn {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
+  flex: 1;
+  width: 100%;
+}}
 
 .searchLocation-quickSearch-suggestions {
   margin: 0;
@@ -904,26 +920,26 @@
         (((
           {{html clean=false}}
             &lt;form class='searchLocation form-inline' action='${xwiki.getURL("$wiki:Main.Search")}' role='search'&gt;
-              &lt;div class="hidden"&gt;
-                #if ($reference != "")
-                &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
-                #end
-                #if ($className != "")
-                &lt;input type="hidden" name="f_class" value="$escapetool.xml($className)"/&gt;
-                #end
-                #foreach ($tag in $tags)
-                #if ("$tag" != "")
-                &lt;input type="hidden" name="f_property.XWiki.TagClass.tags_string" value="$escapetool.xml($tag)"/&gt;
-                #end
-                #end
-                &lt;input type="hidden" name="f_type" value="DOCUMENT"/&gt;
-                ## The following line is a workaround for XWIKI-22102 and should be removed when the widespread versions of XWiki have a fix for this bug
-                &lt;input type="hidden" name="r" value="1"/&gt;
-              &lt;/div&gt;
-              &lt;span class='input-group-btn'&gt;
-                &lt;input type='text' name='text' placeholder="$!{escapetool.xml($placeholder)}" #if($inputWidth != '') style="width:${escapetool.xml($inputWidth)}"#end /&gt;
-                &lt;button type='submit' class='btn' title="$services.localization.render('search')" aria-expanded='false' aria-controls='searchLocationInput'#if($buttonWidth != '') style="width:${escapetool.xml($buttonWidth)}"#end&gt;#if($buttonText != '')${escapetool.xml($buttonText)}#else${services.localization.render('search')}#end&lt;/button&gt;
-              &lt;/span&gt;
+              #if ($reference != "")
+              &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
+              #end
+              #if ($className != "")
+              &lt;input type="hidden" name="f_class" value="$escapetool.xml($className)"/&gt;
+              #end
+              #foreach ($tag in $tags)
+              #if ("$tag" != "")
+              &lt;input type="hidden" name="f_property.XWiki.TagClass.tags_string" value="$escapetool.xml($tag)"/&gt;
+              #end
+              #end
+              &lt;input type="hidden" name="f_type" value="DOCUMENT"/&gt;
+              ## The following line is a workaround for XWIKI-22102 and should be removed when the widespread versions of XWiki have a fix for this bug
+              &lt;input type="hidden" name="r" value="1"/&gt;
+              &lt;p&gt;
+                &lt;span class='input-group-btn'&gt;
+                  &lt;input type='text' name='text' placeholder="$!{escapetool.xml($placeholder)}" #if($inputWidth != '') class="fixed-width" style="width:${escapetool.xml($inputWidth)}"#end /&gt;
+                  &lt;button type='submit' class='btn' title="$services.localization.render('search')" aria-expanded='false' aria-controls='searchLocationInput'#if($buttonWidth != '') style="width:${escapetool.xml($buttonWidth)}"#end&gt;#if($buttonText != '')${escapetool.xml($buttonText)}#else${services.localization.render('search')}#end&lt;/button&gt;
+                &lt;/span&gt;
+              &lt;/p&gt;
             &lt;/form&gt;
           {{/html}}
         )))
