@@ -57,7 +57,14 @@ rendering.macro.locationSearch.parameter.suggest.name=Suggest
 rendering.macro.locationSearch.parameter.suggest.description=Suggest results as the search is typed.
 rendering.macro.locationSearch.parameter.showExcerpts.name=Show Excerpts
 rendering.macro.locationSearch.parameter.showExcerpts.description=Show exceprts with highlighted matches in suggested results.
-</content>
+rendering.macro.locationSearch.parameter.width.name=Width
+rendering.macro.locationSearch.parameter.width.description=Width of the search box.
+rendering.macro.locationSearch.parameter.inputWidth.name=Input width
+rendering.macro.locationSearch.parameter.inputWidth.description=Width of the search input.
+rendering.macro.locationSearch.parameter.buttonWidth.name=Button width
+rendering.macro.locationSearch.parameter.buttonWidth.description=Width of the search button.
+rendering.macro.locationSearch.parameter.description.name=Description
+rendering.macro.locationSearch.parameter.description.description=Description of the search box.</content>
   <object>
     <name>LocationSearch.Code.Translations</name>
     <number>0</number>

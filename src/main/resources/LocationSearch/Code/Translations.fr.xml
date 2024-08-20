@@ -57,5 +57,12 @@ rendering.macro.locationSearch.parameter.suggest.name=Suggérer
 rendering.macro.locationSearch.parameter.suggest.description=Suggérer des résultats lors de la frappe.
 rendering.macro.locationSearch.parameter.showExcerpts.name=Afficher les extraits
 rendering.macro.locationSearch.parameter.showExcerpts.description=Afficher des extraits en surlignant les correspondances dans les résultats suggérés.
-</content>
+rendering.macro.locationSearch.parameter.width.name=Largeur
+rendering.macro.locationSearch.parameter.width.description=Largeur de la boîte de recherche.
+rendering.macro.locationSearch.parameter.inputWidth.name=Largeur du champ
+rendering.macro.locationSearch.parameter.inputWidth.description=Largeur du champ de recherche.
+rendering.macro.locationSearch.parameter.buttonWidth.name=Largeur du bouton
+rendering.macro.locationSearch.parameter.buttonWidth.description=Largeur du bouton de recherche.
+rendering.macro.locationSearch.parameter.description.name=Description
+rendering.macro.locationSearch.parameter.description.description=Description de la boîte de recherche.</content>
 </xwikidoc>
