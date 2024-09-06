@@ -583,7 +583,7 @@ form.searchLocation .input-group-btn {
 form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
   flex: 1;
   width: 100%;
-}}
+}
 
 .searchLocation-quickSearch-suggestions {
   margin: 0;
