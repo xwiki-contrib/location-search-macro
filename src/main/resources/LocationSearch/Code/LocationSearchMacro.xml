@@ -165,22 +165,22 @@
 
     const locationSearch = input.closest(".searchLocation-quickSearch");
 
-    const response = await fetch(
-      locationSearchMacroDoc.getURL(
-        "get",
-        new URLSearchParams({
-          q: input.value,
-          nb: "10",
-          outputSyntax: "plain",
-          excerpts: (locationSearch.dataset.excerpts === "true") ? 1 : 0,
-          wiki: locationSearch.dataset.wiki,
-          spaceFacet: locationSearch.querySelector('input[name="f_space_facet"]')?.value || "",
-          className: locationSearch.querySelector('input[name="f_class"]')?.value || "",
-          tags: [].map.call(locationSearch.querySelectorAll('input[name="f_property.XWiki.TagClass.tags_string"]'), input =&gt; input.value).join(","),
-          kind: locationSearch.dataset.searchKind
-        }).toString()
-      )
-    );
+    const params = new URLSearchParams({
+      q: input.value,
+      nb: "10",
+      outputSyntax: "plain",
+      excerpts: (locationSearch.dataset.excerpts === "true") ? 1 : 0,
+      wiki: locationSearch.dataset.wiki,
+      className: locationSearch.querySelector('input[name="f_class"]')?.value || "",
+      tags: [].map.call(locationSearch.querySelectorAll('input[name="f_property.XWiki.TagClass.tags_string"]'), input =&gt; input.value).join(","),
+      kind: locationSearch.dataset.searchKind
+    });
+
+    for (const spaceFacet of locationSearch.querySelectorAll('input[name="f_space_facet"]')) {
+      params.append("spaceFacet", spaceFacet.value);
+    }
+
+    const response = await fetch(locationSearchMacroDoc.getURL("get", params.toString()));
 
     if (response.ok) {
       callback(await response.json());
@@ -860,14 +860,14 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
     </property>
     <property>
       <code>{{velocity}}
-      #set ($reference = "$!wikimacro.parameters.reference")
-      #if ("$!reference" != '')
-        #set ($searchLocationDocumentReference = $services.model.resolveDocument($reference))
+      #set ($title = "")
+      #set ($references = $wikimacro.parameters.reference)
+      #if ($references &amp;&amp; $!reference.isEmpty())
+        #set ($searchLocationDocumentReference = $services.model.resolveDocument($references.get(0)))
+        #if ($references.size() == 1)
+          #set ($title = $xwiki.getDocument($searchLocationDocumentReference).displayTitle)
+        #end
         #set ($wiki = $searchLocationDocumentReference.wikiReference.name)
-        #set ($searchLocationDocument = $xwiki.getDocument($searchLocationDocumentReference))
-        #set ($spaceFacetDepth = $searchLocationDocumentReference.getSpaceReferences().size() - 1)
-        #set ($spaceDepth = $searchLocationDocumentReference.getSpaceReferences().size() - 1)
-        #set ($spaceReferenceString = $services.model.serialize($searchLocationDocumentReference.getLastSpaceReference(), "local"))
       #else
         #set ($wiki = $xcontext.database)
       #end
@@ -912,7 +912,7 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
          data-excerpts="#if($showExcerpts != "0" &amp;&amp; $showExceprts != "false")true#{else}false#end"
       %)(((
         #if ($boxLayout == 'true')
-          === #if ($services.icon)$services.icon.render('find')#end Search $searchLocationDocument.displayTitle ===
+          === #if ($services.icon)$services.icon.render('find')#end Search $title ===
         #end
         #if ("$!description" != '')
           $description
@@ -920,8 +920,14 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
         (((
           {{html clean=false}}
             &lt;form class='searchLocation form-inline' action='${xwiki.getURL("$wiki:Main.Search")}' role='search'&gt;
-              #if ($reference != "")
-              &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
+              #if ($references &amp;&amp; !$references.isEmpty())
+                #foreach ($reference in $references)
+                  #set ($searchLocationDocumentReference = $services.model.resolveDocument($reference))
+                  #set ($spaceFacetDepth = $searchLocationDocumentReference.getSpaceReferences().size() - 1)
+                  #set ($spaceDepth = $searchLocationDocumentReference.getSpaceReferences().size() - 1)
+                  #set ($spaceReferenceString = $services.model.serialize($searchLocationDocumentReference.getLastSpaceReference(), "local"))
+                  &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
+                #end
               #end
               #if ($className != "")
               &lt;input type="hidden" name="f_class" value="$escapetool.xml($className)"/&gt;
@@ -1055,7 +1061,7 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
       <defaultValue>WebHome</defaultValue>
     </property>
     <property>
-      <description>The reference of the location to search into. Use "WebHome" to search in children of the current document, "" to search everywhere.</description>
+      <description>The reference(s) of the location(s) to search into. Use "WebHome" to search in children of the current document, "" to search everywhere. Use commas to specify several locations.</description>
     </property>
     <property>
       <mandatory>0</mandatory>

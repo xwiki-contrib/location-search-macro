@@ -98,9 +98,15 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
   #end
   #set ($discard = $fq.add("property.XWiki.TagClass.tags_string:($escapedTags.trim())"))
 #end
-#set ($spaceFacet = "$!request.spaceFacet")
-#if ($spaceFacet != "")
-  #set ($discard = $fq.add("space_facet:#escapeSolr($spaceFacet)"))
+#set ($facetFilter = "")
+#foreach ($spaceFacet in $request.getParameterValues("spaceFacet"))
+  #set ($facetFilter = $facetFilter + "#escapeSolr($spaceFacet)")
+  #if (!$foreach.last)
+    #set ($facetFilter = "$facetFilter OR ")
+  #end
+#end
+#if (!$facetFilter.isEmpty())
+  #set ($discard = $fq.add("space_facet:($facetFilter)"))
 #end
 #set ($className = "$!request.className")
 #if ($className != "")
