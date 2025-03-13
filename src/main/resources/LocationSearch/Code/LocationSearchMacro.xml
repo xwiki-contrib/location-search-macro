@@ -909,7 +909,7 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
          data-search-kind="$escapetool.xml($kind)"
          data-suggest="$suggest"
          data-wiki="$escapetool.xml($wiki)"
-         data-excerpts="#if($showExcerpts != "0" &amp;&amp; $showExceprts != "false")true#{else}false#end"
+         data-excerpts="#if($showExcerpts != "0" &amp;&amp; $showExcerpts != "false")true#{else}false#end"
       %)(((
         #if ($boxLayout == 'true')
           === #if ($services.icon)$services.icon.render('find')#end Search $title ===
