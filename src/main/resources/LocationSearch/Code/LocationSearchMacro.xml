@@ -1070,7 +1070,7 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
       <name>reference</name>
     </property>
     <property>
-      <type/>
+      <type>java.util.List&lt;java.lang.String&gt;</type>
     </property>
   </object>
   <object>
