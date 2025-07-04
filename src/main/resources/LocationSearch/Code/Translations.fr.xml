@@ -49,7 +49,7 @@ rendering.macro.locationSearch.parameter.buttonText.name=Texte du bouton
 rendering.macro.locationSearch.parameter.buttonText.description=Texte affiché sur le bouton.
 rendering.macro.locationSearch.parameter.tags.name=Étiquettes (tags)
 rendering.macro.locationSearch.parameter.tags.description=La recherche devrait être restreinte aux documents contenant une de ces étiquettes, séparées par une barre verticale (|).
-rendering.macro.locationSearch.parameter.className.name=Nom de classe
+rendering.macro.locationSearch.parameter.className.name=Nom de la Classe
 rendering.macro.locationSearch.parameter.className.description=La recherche devrait être restreinte aux documents contenant un objet de ce type.
 rendering.macro.locationSearch.parameter.kind.name=Type
 rendering.macro.locationSearch.parameter.kind.description=La recherche devrait être restreinte aux éléments de ce type (valeurs possibles : title, content, comment, attachment, attachmentName, attachmentContent, object, all ; par défaut : all).
@@ -64,5 +64,6 @@ rendering.macro.locationSearch.parameter.inputWidth.description=Largeur du champ
 rendering.macro.locationSearch.parameter.buttonWidth.name=Largeur du bouton
 rendering.macro.locationSearch.parameter.buttonWidth.description=Largeur du bouton de recherche.
 rendering.macro.locationSearch.parameter.description.name=Description
-rendering.macro.locationSearch.parameter.description.description=Description de la boîte de recherche.</content>
+rendering.macro.locationSearch.parameter.description.description=Description de la boîte de recherche.
+</content>
 </xwikidoc>
