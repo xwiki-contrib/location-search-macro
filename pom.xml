@@ -28,7 +28,7 @@
     <version>14.4</version>
   </parent>
   <artifactId>location-search-macro</artifactId>
-  <version>1.5.2-SNAPSHOT</version>
+  <version>1.6.0</version>
   <name>Location Search Macro</name>
   <packaging>xar</packaging>
   <description>Wiki macro using a reference given as parameter to trigger search with the location pre-filled</description>
@@ -46,7 +46,7 @@
    <connection>scm:git:git://github.com/xwiki-contrib/location-search-macro.git</connection>
    <developerConnection>scm:git:git@github.com:xwiki-contrib/location-search-macro.git</developerConnection>
    <url>https://github.com/xwiki-contrib/location-search-macro</url>
-   <tag>HEAD</tag>
+   <tag>location-search-macro-1.6.0</tag>
   </scm>
   <build>
     <extensions>
