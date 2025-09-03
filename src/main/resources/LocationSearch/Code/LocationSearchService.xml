@@ -122,13 +122,13 @@ $stringtool.replaceEach($v, $solrSpecialChars, $escapedSolrSpecialChars)##
   #foreach ($part in $docRef.getSpaceReferences())
     #set($discard = $location.add({
       "id": $part.name,
-      "title": $xwiki.getDocument("$wiki:${services.model.serialize($part)}.WebHome").displayTitle
+      "title": $xwiki.getDocument("$wiki:${services.model.serialize($part)}.WebHome").title
     }))
   #end
   #set ($resultDoc = $xwiki.getDocument($docRef))
   #set ($r = {
     "docFullName": $services.model.serialize($docRef, "default"),
-    "docTitle":  $resultDoc.displayTitle,
+    "docTitle":  $resultDoc.title,
     "type": $result.type,
     "kind": "",
     "location": $location,
