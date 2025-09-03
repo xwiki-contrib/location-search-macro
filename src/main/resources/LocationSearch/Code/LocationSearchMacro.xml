@@ -1702,7 +1702,7 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
       </type>
     </class>
     <property>
-      <defaultValue>1</defaultValue>
+      <defaultValue>true</defaultValue>
     </property>
     <property>
       <description>Suggest results as the search is typed</description>
@@ -1792,7 +1792,7 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
       </type>
     </class>
     <property>
-      <defaultValue>1</defaultValue>
+      <defaultValue>true</defaultValue>
     </property>
     <property>
       <description>Show exceprts with highlighted matches in suggested results</description>
