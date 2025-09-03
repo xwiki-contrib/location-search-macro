@@ -937,7 +937,10 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
                   #end
                   #set ($spaceFacetDepth = $spaceReference.size())
                   #set ($spaceReferenceString = $services.model.serialize($spaceReference, "local"))
-                  &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
+                  #if ($spaceReferenceString != "Main")
+                    ## We exclude Main; Main.WebHome's (transitive) children is everybody
+                    &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
+                  #end
                 #end
               #end
               #if ($className != "")
