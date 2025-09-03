@@ -922,10 +922,21 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
             &lt;form class='searchLocation form-inline' action='${xwiki.getURL("$wiki:Main.Search")}' role='search'&gt;
               #if ($references &amp;&amp; !$references.isEmpty())
                 #foreach ($reference in $references)
-                  #set ($searchLocationDocumentReference = $services.model.resolveDocument($reference))
-                  #set ($spaceFacetDepth = $searchLocationDocumentReference.getSpaceReferences().size() - 1)
-                  #set ($spaceDepth = $searchLocationDocumentReference.getSpaceReferences().size() - 1)
-                  #set ($spaceReferenceString = $services.model.serialize($searchLocationDocumentReference.getLastSpaceReference(), "local"))
+                  #set ($spaceReference = $NULL)
+                  #if ($reference != "WebHome" &amp;&amp; !$reference.endsWith(".WebHome"))
+                    #set ($spaceReference = $services.query.hql("select s from XWikiSpace s where s.reference = :ref").bindValue('ref', $reference).setWiki($wiki).execute()[0].getSpaceReference())
+                  #end
+                  #if (!$spaceReference)
+                    #set ($d = $services.model.resolveDocument($reference))
+                    #if ($d.getName() == "WebHome" || !$xwiki.getDocument($d).isNew())
+                      #set ($spaceReference = $d.getParent())
+                    #end
+                  #end
+                  #if (!$spaceReference)
+                    #set ($spaceReference =  $services.model.resolveSpace($reference))
+                  #end
+                  #set ($spaceFacetDepth = $spaceReference.size())
+                  #set ($spaceReferenceString = $services.model.serialize($spaceReference, "local"))
                   &lt;input type="hidden" name="f_space_facet" value="$spaceFacetDepth/${escapetool.xml($spaceReferenceString)}."/&gt;
                 #end
               #end
