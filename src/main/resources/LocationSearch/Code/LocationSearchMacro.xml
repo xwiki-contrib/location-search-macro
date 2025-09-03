@@ -935,7 +935,7 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
                   #if (!$spaceReference)
                     #set ($spaceReference =  $services.model.resolveSpace($reference))
                   #end
-                  #set ($spaceFacetDepth = $spaceReference.size())
+                  #set ($spaceFacetDepth = $spaceReference.size() - 2)
                   #set ($spaceReferenceString = $services.model.serialize($spaceReference, "local"))
                   #if ($spaceReferenceString != "Main")
                     ## We exclude Main; Main.WebHome's (transitive) children is everybody
