@@ -199,15 +199,10 @@
     return v;
   }
 
-  for (const searchLocation of document.querySelectorAll('.searchLocation-quickSearch')) {
-    if (searchLocation.dataset.suggest === "true") {
-      prepareSuggestions(searchLocation, load);
-    }
-
-    searchLocation.querySelector("form").addEventListener("formdata", function (e) {
+  function handleFormData(e) {
       const formData = e.formData;
       const v = escapeSolr(formData.get("text"));
-      switch (searchLocation.dataset.searchKind) {
+      switch (this.closest(".searchLocation-quickSearch").dataset.searchKind) {
         case "attachmentName":
           formData.set("text", "filename:" + v);
           break;
@@ -229,7 +224,26 @@
         default:
           formData.set("text", v);
       }
-    });
+  }
+
+  function handleSearchLocationMacros() {
+    for (const searchLocation of document.querySelectorAll(".searchLocation-quickSearch")) {
+      if (searchLocation.dataset.suggest === "true") {
+        prepareSuggestions(searchLocation, load);
+      }
+
+      const form = searchLocation.querySelector("form");
+      if (form) {
+        form.removeEventListener("formdata", handleFormData);
+        form.addEventListener("formdata", handleFormData);
+      }
+    }
+  }
+
+  handleSearchLocationMacros();
+
+  if (document.observe) {
+    document.observe("xwiki:dom:updated", handleSearchLocationMacros);
   }
 
   var suggestions = null;
@@ -289,16 +303,39 @@
 
   function suggestionsFocusIn() {
     const nodeName = document.activeElement.nodeName.toLowerCase();
-    if (
-      (nodeName !== "a" &amp;&amp; nodeName !== "input") ||
-      !document.activeElement.closest(".searchLocation-quickSearch,.searchLocation-quickSearch-suggestions")
-    ) {
+    if ((nodeName !== "a" &amp;&amp; nodeName !== "input") || !document.activeElement.closest(".searchLocation-quickSearch,.searchLocation-quickSearch-suggestions")) {
       hideSuggestions();
     }
   }
 
   function prepareSuggestions(locationSearch, load) {
+    if (locationSearch.dataset.locationSearchHandled === "yes") {
+      return;
+    }
+
     const input = locationSearch.querySelector('input[type="text"]');
+    const initialAutocomplete = input.autocomplete;
+    locationSearch.dataset.locationSearchHandled = "yes";
+    function handleDOMUpdated() {
+      if (!locationSearch.isConnected) {
+        // This location search element has disappeared,
+        // we dettach so the browser can clean us up
+        document.stopObserving("xwiki:dom:updated", handleDOMUpdated);
+        return;
+      }
+      if (locationSearch.dataset.suggest === "true") {
+        // We need to be pessimistic here, and disable and re-enable event listeners
+        // to be sure event listeners are registered after a dom update, but not twice.
+        disableSuggestions();
+        enableSuggestions();
+      } else {
+        disableSuggestions();
+      }
+    }
+    if (document.observe) {
+      document.observe("xwiki:dom:updated", handleDOMUpdated);
+    }
+
     let debounceTimeout = -1;
     function debouncedTriggerSuggestions(e) {
       if (debounceTimeout !== -1) {
@@ -312,21 +349,37 @@
 
       debounceTimeout = setTimeout(() =&gt; {
         debounceTimeout = -1;
-        triggerSuggestions(e)
+        triggerSuggestions(e);
       }, 250);
     }
 
+    function enableSuggestions() {
+      input.autocomplete = "off";
+      input.addEventListener("keyup", debouncedTriggerSuggestions);
+      input.addEventListener("click", triggerSuggestions);
+      input.addEventListener("keydown", suggestionkeyDown);
+    }
+
+    function disableSuggestions() {
+      input.autocomplete = initialAutocomplete;
+      input.removeEventListener("keyup", debouncedTriggerSuggestions);
+      input.removeEventListener("click", triggerSuggestions);
+      input.removeEventListener("keydown", suggestionkeyDown);
+    }
+
+    enableSuggestions();
+
     let currentSuggestionRequest = "";
     let requestId = 0;
-    input.autocomplete = "off";
-    input.addEventListener("keyup", debouncedTriggerSuggestions);
-    input.addEventListener("click", triggerSuggestions);
-    input.addEventListener("keydown", suggestionkeyDown);
 
-    function triggerSuggestions () {
+    function triggerSuggestions() {
       const v = input.value;
 
-      if (currentSuggestionRequest === v &amp;&amp; currentInput === input &amp;&amp; document.activeElement === input) {
+      if (
+        currentSuggestionRequest === v &amp;&amp;
+        currentInput === input &amp;&amp;
+        document.activeElement === input
+      ) {
         if (suggestions &amp;&amp; suggestions.children.length) {
           suggestions.hidden = false;
         }
