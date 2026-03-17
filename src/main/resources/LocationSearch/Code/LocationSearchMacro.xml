@@ -915,7 +915,7 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
       <code>{{velocity}}
       #set ($title = "")
       #set ($references = $wikimacro.parameters.reference)
-      #if ($references &amp;&amp; $!reference.isEmpty())
+      #if ($references &amp;&amp; $!references.isEmpty())
         #set ($searchLocationDocumentReference = $services.model.resolveDocument($references.get(0)))
         #if ($references.size() == 1)
           #set ($title = $xwiki.getDocument($searchLocationDocumentReference).displayTitle)
@@ -973,7 +973,7 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
         (((
           {{html clean=false}}
             &lt;form class='searchLocation form-inline' action='${xwiki.getURL("$wiki:Main.Search")}' role='search'&gt;
-              #if ($references &amp;&amp; $!references.isEmpty())
+              #if ($references &amp;&amp; !$references.isEmpty())
                 #foreach ($reference in $references)
                   #set ($spaceReference = $NULL)
                   #if ($reference != "WebHome" &amp;&amp; !$reference.endsWith(".WebHome"))
