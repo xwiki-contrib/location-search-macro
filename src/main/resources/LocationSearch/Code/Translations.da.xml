@@ -37,33 +37,33 @@
   <minorEdit>false</minorEdit>
   <syntaxId>plain/1.0</syntaxId>
   <hidden>true</hidden>
-  <content>### Missing: rendering.macro.locationSearch.name=
-### Missing: rendering.macro.locationSearch.description=
-### Missing: rendering.macro.locationSearch.parameter.reference.name=
-### Missing: rendering.macro.locationSearch.parameter.reference.description=
-### Missing: rendering.macro.locationSearch.parameter.box.name=
-### Missing: rendering.macro.locationSearch.parameter.box.description=
-### Missing: rendering.macro.locationSearch.parameter.float.name=
-### Missing: rendering.macro.locationSearch.parameter.float.description=
-### Missing: rendering.macro.locationSearch.parameter.buttonText.name=
-### Missing: rendering.macro.locationSearch.parameter.buttonText.description=
-### Missing: rendering.macro.locationSearch.parameter.tags.name=
-### Missing: rendering.macro.locationSearch.parameter.tags.description=
-### Missing: rendering.macro.locationSearch.parameter.className.name=
-### Missing: rendering.macro.locationSearch.parameter.className.description=
-### Missing: rendering.macro.locationSearch.parameter.kind.name=
-### Missing: rendering.macro.locationSearch.parameter.kind.description=
-### Missing: rendering.macro.locationSearch.parameter.suggest.name=
-### Missing: rendering.macro.locationSearch.parameter.suggest.description=
-### Missing: rendering.macro.locationSearch.parameter.showExcerpts.name=
-### Missing: rendering.macro.locationSearch.parameter.showExcerpts.description=
-### Missing: rendering.macro.locationSearch.parameter.width.name=
-### Missing: rendering.macro.locationSearch.parameter.width.description=
-### Missing: rendering.macro.locationSearch.parameter.inputWidth.name=
-### Missing: rendering.macro.locationSearch.parameter.inputWidth.description=
-### Missing: rendering.macro.locationSearch.parameter.buttonWidth.name=
-### Missing: rendering.macro.locationSearch.parameter.buttonWidth.description=
-### Missing: rendering.macro.locationSearch.parameter.description.name=
-### Missing: rendering.macro.locationSearch.parameter.description.description=
+  <content>rendering.macro.locationSearch.name=Søgning i placering
+rendering.macro.locationSearch.description=Søg i den angivne placering.
+rendering.macro.locationSearch.parameter.reference.name=Reference
+rendering.macro.locationSearch.parameter.reference.description=Referencen til den placering, der skal søges i. Brug "WebHome" for at søge i det aktuelle dokuments undersider og "" for at søge overalt.
+rendering.macro.locationSearch.parameter.box.name=Boks
+rendering.macro.locationSearch.parameter.box.description=Vis søgefeltet i en boks.
+rendering.macro.locationSearch.parameter.float.name=Flydende
+rendering.macro.locationSearch.parameter.float.description=Lad søgeblokken flyde.
+rendering.macro.locationSearch.parameter.buttonText.name=Knaptekst
+rendering.macro.locationSearch.parameter.buttonText.description=Den tekst, der vises på knappen.
+rendering.macro.locationSearch.parameter.tags.name=Nøgleord
+rendering.macro.locationSearch.parameter.tags.description=Søgningen skal begrænses til dokumenter, der har et af disse nøgleord. Adskil dem med en lodret streg (|).
+rendering.macro.locationSearch.parameter.className.name=Klassenavn
+rendering.macro.locationSearch.parameter.className.description=Søgningen skal begrænses til dokumenter, der indeholder et objekt af denne klasse.
+rendering.macro.locationSearch.parameter.kind.name=Type
+rendering.macro.locationSearch.parameter.kind.description=Søgningen skal begrænses til denne type elementer (mulige værdier: title, content, comment, attachment, attachmentName, attachmentContent, object, all; standard: all). Bemærk: Parameteren understøtter kun én værdi.
+rendering.macro.locationSearch.parameter.suggest.name=Forslag
+rendering.macro.locationSearch.parameter.suggest.description=Foreslå resultater, mens der skrives i søgefeltet.
+rendering.macro.locationSearch.parameter.showExcerpts.name=Vis uddrag
+rendering.macro.locationSearch.parameter.showExcerpts.description=Vis uddrag med fremhævede match i de foreslåede resultater.
+rendering.macro.locationSearch.parameter.width.name=Bredde
+rendering.macro.locationSearch.parameter.width.description=Søgefeltets bredde.
+rendering.macro.locationSearch.parameter.inputWidth.name=Bredde på indtastningsfelt
+rendering.macro.locationSearch.parameter.inputWidth.description=Bredden på søgefeltets indtastningsfelt.
+rendering.macro.locationSearch.parameter.buttonWidth.name=Knapbredde
+rendering.macro.locationSearch.parameter.buttonWidth.description=Søgeknappens bredde.
+rendering.macro.locationSearch.parameter.description.name=Beskrivelse
+rendering.macro.locationSearch.parameter.description.description=Beskrivelse af søgefeltet.
 </content>
 </xwikidoc>
