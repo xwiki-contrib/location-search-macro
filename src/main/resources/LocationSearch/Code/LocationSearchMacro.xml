@@ -947,7 +947,6 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
       #set ($width = "$!wikimacro.parameters.width")
       #set ($inputWidth = "$!wikimacro.parameters.inputWidth")
       #set ($buttonWidth = "$!wikimacro.parameters.buttonWidth")
-      #set ($description = "$!wikimacro.parameters.description")
       #set ($buttonText = "$!wikimacro.parameters.buttonText")
       #set ($showExcerpts = "$!wikimacro.parameters.showExcerpts")
       #set ($tags = "$!wikimacro.parameters.tags")
@@ -971,8 +970,8 @@ form.searchLocation .input-group-btn&gt;input[type="text"]:not(.fixed-width) {
         #if ($boxLayout == 'true')
           === #if ($services.icon)$services.icon.render('find')#end Search $title ===
         #end
-        #if ("$!description" != '')
-          $description
+        #if ("$!wikimacro.parameters.description" != "")
+          {{wikimacroparameter name="description" /}}
         #end
         (((
           {{html clean=false}}
